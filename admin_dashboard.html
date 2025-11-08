@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Cosmetic Vision</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #a78bfa;
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a0b2e;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #a78bfa;
+            border-bottom-color: #a78bfa;
+        }
+
+        .tab:hover {
+            color: #8b5cf6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 20px;
+            color: #1a0b2e;
+        }
+
+        .refresh-btn {
+            background: #a78bfa;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #8b5cf6;
+        }
+
+        table.dataTable {
+            width: 100% !important;
+            border-collapse: collapse;
+        }
+
+        table.dataTable thead th {
+            background: #f3f4f6;
+            font-weight: 600;
+            font-size: 13px;
+            color: #374151;
+            padding: 12px 8px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        table.dataTable tbody td {
+            padding: 12px 8px;
+            font-size: 14px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        table.dataTable tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .chatbot-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.bot .message-bubble {
+            background: white;
+            border: 1px solid #e5e7eb;
+        }
+
+        .message.user .message-bubble {
+            background: #a78bfa;
+            color: white;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #a78bfa;
+        }
+
+        .send-btn {
+            background: #a78bfa;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #8b5cf6;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #a78bfa;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .example-prompts {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .example-prompt {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .example-prompt:hover {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚙️ Admin Dashboard</h1>
+        <div class="header-right">
+            <span id="adminName">Admin</span>
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Orders</h3>
+                <div class="value" id="totalOrders">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="value" id="totalRevenue">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Pending Reviews</h3>
+                <div class="value" id="pendingReviews">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Quality Issues</h3>
+                <div class="value" id="qualityIssues">-</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('master-table')">📊 Master Table</button>
+            <button class="tab" onclick="switchTab('ai-analytics')">🤖 AI Analytics</button>
+        </div>
+
+        <!-- Master Table Tab -->
+        <div id="master-table" class="tab-content active">
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>Orders Master Table</h2>
+                    <button class="refresh-btn" onclick="refreshTable()">🔄 Refresh</button>
+                </div>
+                <table id="ordersTable" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <!-- Will be populated dynamically -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- AI Analytics Tab -->
+        <div id="ai-analytics" class="tab-content">
+            <div class="chatbot-container">
+                <div class="chat-header">
+                    🤖 AI Analytics Assistant
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        <div class="message-bubble">
+                            👋 Hello! I'm your AI Analytics Assistant. Ask me anything about your orders data!
+                            <div class="example-prompts" style="margin-top: 12px;">
+                                <div class="example-prompt" onclick="sendPrompt('What is the total revenue?')">💰 Total revenue</div>
+                                <div class="example-prompt" onclick="sendPrompt('Show me orders with quality issues')">⚠️ Quality issues</div>
+                                <div class="example-prompt" onclick="sendPrompt('Which products are most popular?')">📈 Popular products</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Ask about your data... (e.g., 'How many pending payments?')" onkeypress="handleKeyPress(event)">
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script>
+        let ordersData = [];
+        let dataTable = null;
+
+        // Check admin authentication
+        if (!sessionStorage.getItem('isAdmin')) {
+            window.location.href = '/admin-login';
+        }
+
+        // Load data on page load
+        window.addEventListener('load', function() {
+            loadOrdersData();
+        });
+
+        async function loadOrdersData() {
+            try {
+                const response = await fetch('/api/orders');
+                const data = await response.json();
+                
+                if (data.success) {
+                    ordersData = data.records;
+                    populateStats(ordersData);
+                    initializeTable(ordersData);
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function populateStats(data) {
+            // Total Orders
+            document.getElementById('totalOrders').textContent = data.length;
+            
+            // Total Revenue (sum of Order Total)
+            let totalRevenue = 0;
+            data.forEach(record => {
+                const orderTotal = record.fields['Order Total'];
+                if (orderTotal) {
+                    const amount = parseFloat(orderTotal.replace(/[$,]/g, ''));
+                    if (!isNaN(amount)) totalRevenue += amount;
+                }
+            });
+            document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toLocaleString();
+            
+            // Pending Reviews (records without review fields)
+            const pendingReviews = data.filter(r => !r.fields['Actual Units Received']).length;
+            document.getElementById('pendingReviews').textContent = pendingReviews;
+            
+            // Quality Issues (records with rejects > 0)
+            const qualityIssues = data.filter(r => {
+                const rejects = r.fields['Quality Rejects on Inspection'];
+                return rejects && rejects > 0;
+            }).length;
+            document.getElementById('qualityIssues').textContent = qualityIssues;
+        }
+
+        function initializeTable(data) {
+            if (data.length === 0) return;
+            
+            // Get all unique field names from first record
+            const fields = Object.keys(data[0].fields);
+            
+            // Create table headers
+            const thead = document.querySelector('#ordersTable thead tr');
+            thead.innerHTML = fields.map(field => `<th>${field}</th>`).join('');
+            
+            // Create table rows
+            const tbody = document.querySelector('#ordersTable tbody');
+            tbody.innerHTML = data.map(record => {
+                return '<tr>' + fields.map(field => {
+                    let value = record.fields[field];
+                    if (value === true) value = '✓';
+                    if (value === false) value = '✗';
+                    if (value === null || value === undefined) value = '-';
+                    return `<td>${value}</td>`;
+                }).join('') + '</tr>';
+            }).join('');
+            
+            // Initialize DataTable
+            if (dataTable) {
+                dataTable.destroy();
+            }
+            dataTable = $('#ordersTable').DataTable({
+                pageLength: 25,
+                order: [[0, 'desc']],
+                scrollX: true,
+                dom: 'Bfrtip',
+                buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+            });
+        }
+
+        function refreshTable() {
+            loadOrdersData();
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Disable send button
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Thinking...';
+            
+            try {
+                const response = await fetch('/api/ai-analytics', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: message,
+                        data: ordersData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addMessage(result.answer, 'bot');
+                } else {
+                    addMessage('Sorry, I encountered an error processing your request.', 'bot');
+                }
+            } catch (error) {
+                addMessage('Sorry, I encountered an error connecting to the AI service.', 'bot');
+            }
+            
+            // Re-enable send button
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Send';
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function sendPrompt(prompt) {
+            document.getElementById('chatInput').value = prompt;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('isAdmin');
+            sessionStorage.removeItem('adminToken');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

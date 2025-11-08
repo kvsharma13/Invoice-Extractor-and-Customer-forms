@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Order Form - Cosmetic Vision</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 50%, #1a0b2e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #b794f6 0%, #e9d5ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .logo p {
+            color: #c4b5fd;
+            font-size: 14px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            gap: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #a78bfa;
+            border: 2px solid rgba(167, 139, 250, 0.3);
+        }
+
+        .step.active .step-number {
+            background: #a78bfa;
+            color: #1a0b2e;
+            border-color: #a78bfa;
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: #c4b5fd;
+        }
+
+        .step.active .step-label {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #fff;
+            border-bottom: 2px solid rgba(167, 139, 250, 0.3);
+            padding-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #e9d5ff;
+            font-size: 14px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(167, 139, 250, 0.3);
+            border-radius: 12px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #a78bfa;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1);
+        }
+
+        .form-group input[type="text"]:disabled,
+        .form-group input[type="number"]:disabled {
+            background: rgba(255, 255, 255, 0.03);
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 2px solid rgba(167, 139, 250, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #a78bfa;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #a78bfa;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            color: #e9d5ff;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .summary-box {
+            background: rgba(167, 139, 250, 0.1);
+            border: 2px solid #a78bfa;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 30px 0;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(167, 139, 250, 0.2);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .summary-label {
+            color: #e9d5ff;
+            font-size: 15px;
+        }
+
+        .summary-value {
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .summary-total {
+            font-size: 24px !important;
+            color: #a78bfa !important;
+        }
+
+        .payment-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .paypal-logo {
+            width: 120px;
+            margin-bottom: 24px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(167, 139, 250, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: #ef4444;
+            border: 2px solid #ef4444;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .success-message h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: #a78bfa;
+        }
+
+        .success-message p {
+            color: #e9d5ff;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Cosmetic Vision</h1>
+            <p>Customer Order Form</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active" id="step1-indicator">
+                <div class="step-number">1</div>
+                <div class="step-label">Order Details</div>
+            </div>
+            <div class="step" id="step2-indicator">
+                <div class="step-number">2</div>
+                <div class="step-label">Payment</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Order Form -->
+        <div class="form-section active" id="step1">
+            <h2 class="section-title">📋 Order Information</h2>
+
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="customerName">Customer Name *</label>
+                    <input type="text" id="customerName" required placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="productDescription">Product Description *</label>
+                    <select id="productDescription" required>
+                        <option value="">Select a product</option>
+                        <option value="Lipstick - Matte Finish">Lipstick - Matte Finish</option>
+                        <option value="Face Cream - Anti-Aging">Face Cream - Anti-Aging</option>
+                        <option value="Eye Shadow Palette - 24 Colors">Eye Shadow Palette - 24 Colors</option>
+                        <option value="Nail Polish - Quick Dry">Nail Polish - Quick Dry</option>
+                        <option value="Foundation - Full Coverage">Foundation - Full Coverage</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="unitPrice">Unit Price</label>
+                        <input type="text" id="unitPrice" disabled placeholder="$0.00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stockSKU">Stock SKU Number</label>
+                        <input type="text" id="stockSKU" disabled placeholder="SKU-XXXX">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="depositPercent">Deposit %</label>
+                        <input type="text" id="depositPercent" disabled placeholder="0%">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="unitsToOrder">Units to Order *</label>
+                        <input type="number" id="unitsToOrder" required min="1" placeholder="Enter quantity">
+                    </div>
+                </div>
+
+                <h3 style="color: #e9d5ff; margin: 24px 0 16px 0; font-size: 18px;">Order Options</h3>
+
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="newProduct">
+                        <label for="newProduct">New Product</label>
+                    </div>
+
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="pressCheck">
+                        <label for="pressCheck">Press Check</label>
+                    </div>
+
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="updateArtwork">
+                        <label for="updateArtwork">Update Artwork</label>
+                    </div>
+
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="toleranceOrder">
+                        <label for="toleranceOrder">5% Tolerance Order</label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="fillDemoData()" style="margin-bottom: 15px;">
+                        🎯 Fill Demo Data (For Testing)
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="goToPayment()">
+                        Continue to Payment →
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 2: Payment -->
+        <div class="form-section" id="step2">
+            <h2 class="section-title">💳 Payment Summary</h2>
+
+            <div class="summary-box">
+                <div class="summary-item">
+                    <span class="summary-label">Product:</span>
+                    <span class="summary-value" id="summaryProduct">-</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Units:</span>
+                    <span class="summary-value" id="summaryUnits">-</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Unit Price:</span>
+                    <span class="summary-value" id="summaryUnitPrice">-</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Order Total:</span>
+                    <span class="summary-value" id="summaryOrderTotal">$0.00</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Deposit Percentage:</span>
+                    <span class="summary-value" id="summaryDepositPercent">-</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Deposit Amount:</span>
+                    <span class="summary-value summary-total" id="summaryDepositAmount">$0.00</span>
+                </div>
+            </div>
+
+            <div class="payment-section">
+                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal" class="paypal-logo">
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-primary" onclick="payDeposit()">
+                        💳 Pay Deposit (Saves to Airtable)
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="submitDemo()" style="background: #10b981; border-color: #10b981;">
+                        🎯 Demo Submit (Test Airtable)
+                    </button>
+                    <button type="button" class="btn btn-cancel" onclick="cancelOrder()">
+                        ✕ Cancel Order
+                    </button>
+                </div>
+
+                <button type="button" class="btn btn-secondary" onclick="goBackToForm()" style="margin-top: 20px;">
+                    ← Back to Form
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            <div class="success-icon">✅</div>
+            <h2>Order Placed Successfully!</h2>
+            <p>Your order has been submitted and saved to our system.</p>
+            <p style="margin-top: 12px; color: #a78bfa; font-weight: 600;">
+                Redirecting to Review Form in 3 seconds...
+            </p>
+            <button type="button" class="btn btn-primary" onclick="window.location.href='/customer-review'" style="margin-top: 20px;">
+                Go to Review Form Now →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Product database with prices, SKU, and deposit percentage
+        const products = {
+            "Lipstick - Matte Finish": {
+                price: 25.00,
+                sku: "SKU-LIP-001",
+                deposit: 30
+            },
+            "Face Cream - Anti-Aging": {
+                price: 45.00,
+                sku: "SKU-CRM-002",
+                deposit: 50
+            },
+            "Eye Shadow Palette - 24 Colors": {
+                price: 35.00,
+                sku: "SKU-EYE-003",
+                deposit: 40
+            },
+            "Nail Polish - Quick Dry": {
+                price: 15.00,
+                sku: "SKU-NAL-004",
+                deposit: 25
+            },
+            "Foundation - Full Coverage": {
+                price: 38.00,
+                sku: "SKU-FND-005",
+                deposit: 35
+            }
+        };
+
+        // Auto-populate fields when product is selected
+        document.getElementById('productDescription').addEventListener('change', function() {
+            const selectedProduct = this.value;
+            if (selectedProduct && products[selectedProduct]) {
+                const product = products[selectedProduct];
+                document.getElementById('unitPrice').value = '$' + product.price.toFixed(2);
+                document.getElementById('stockSKU').value = product.sku;
+                document.getElementById('depositPercent').value = product.deposit + '%';
+            } else {
+                document.getElementById('unitPrice').value = '';
+                document.getElementById('stockSKU').value = '';
+                document.getElementById('depositPercent').value = '';
+            }
+        });
+
+        // DEMO BUTTON: Fill form with test data
+        function fillDemoData() {
+            document.getElementById('customerName').value = 'Demo Customer';
+            document.getElementById('productDescription').value = 'Lipstick - Matte Finish';
+            
+            // Trigger product selection to populate fields
+            const product = products['Lipstick - Matte Finish'];
+            document.getElementById('unitPrice').value = '$' + product.price.toFixed(2);
+            document.getElementById('stockSKU').value = product.sku;
+            document.getElementById('depositPercent').value = product.deposit + '%';
+            
+            document.getElementById('unitsToOrder').value = '100';
+            document.getElementById('newProduct').checked = true;
+            document.getElementById('pressCheck').checked = false;
+            document.getElementById('updateArtwork').checked = true;
+            document.getElementById('toleranceOrder').checked = false;
+            
+            alert('Demo data filled! Click "Continue to Payment" to test.');
+        }
+
+        function goToPayment() {
+            // Validate form
+            const customerName = document.getElementById('customerName').value;
+            const productDescription = document.getElementById('productDescription').value;
+            const unitsToOrder = document.getElementById('unitsToOrder').value;
+
+            if (!customerName || !productDescription || !unitsToOrder) {
+                alert('Please fill in all required fields (Customer Name, Product, and Units to Order)');
+                return;
+            }
+
+            // Calculate totals
+            const product = products[productDescription];
+            const units = parseInt(unitsToOrder);
+            const orderTotal = product.price * units;
+            const depositAmount = (orderTotal * product.deposit) / 100;
+
+            // Update summary
+            document.getElementById('summaryProduct').textContent = productDescription;
+            document.getElementById('summaryUnits').textContent = units;
+            document.getElementById('summaryUnitPrice').textContent = '$' + product.price.toFixed(2);
+            document.getElementById('summaryOrderTotal').textContent = '$' + orderTotal.toFixed(2);
+            document.getElementById('summaryDepositPercent').textContent = product.deposit + '%';
+            document.getElementById('summaryDepositAmount').textContent = '$' + depositAmount.toFixed(2);
+
+            // Switch to payment step
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+            document.getElementById('step1-indicator').classList.remove('active');
+            document.getElementById('step2-indicator').classList.add('active');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goBackToForm() {
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step2-indicator').classList.remove('active');
+            document.getElementById('step1-indicator').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function payDeposit() {
+            await submitOrder();
+        }
+
+        async function submitDemo() {
+            console.log('=== DEMO SUBMIT - Testing Airtable Integration ===');
+            await submitOrder();
+        }
+
+        async function submitOrder() {
+            // Collect all form data
+            const formData = {
+                createdDate: new Date().toISOString().split('T')[0],
+                customerName: document.getElementById('customerName').value,
+                productDescription: document.getElementById('productDescription').value,
+                unitPrice: document.getElementById('unitPrice').value,
+                stockSKU: document.getElementById('stockSKU').value,
+                depositPercent: document.getElementById('depositPercent').value,
+                unitsToOrder: document.getElementById('unitsToOrder').value,
+                newProduct: document.getElementById('newProduct').checked,
+                pressCheck: document.getElementById('pressCheck').checked,
+                updateArtwork: document.getElementById('updateArtwork').checked,
+                toleranceOrder: document.getElementById('toleranceOrder').checked,
+                orderTotal: document.getElementById('summaryOrderTotal').textContent,
+                depositAmount: document.getElementById('summaryDepositAmount').textContent
+            };
+
+            console.log('📤 Sending to Airtable:', formData);
+
+            try {
+                // Send to backend
+                const response = await fetch('/submit-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                console.log('📥 Response from server:', result);
+
+                if (result.success) {
+                    // Store order info for review form
+                    sessionStorage.setItem('orderId', result.record_id);
+                    sessionStorage.setItem('customerName', formData.customerName);
+                    sessionStorage.setItem('productDescription', formData.productDescription);
+                    
+                    // Show success message
+                    document.getElementById('step2').classList.remove('active');
+                    document.getElementById('successMessage').classList.add('active');
+                    console.log('✅ SUCCESS! Check Airtable Orders table - Record ID:', result.record_id);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // Auto-redirect to review form after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = '/customer-review';
+                    }, 3000);
+                } else {
+                    console.error('❌ Error:', result.error);
+                    alert('Error submitting order: ' + result.error);
+                }
+            } catch (error) {
+                console.error('❌ Network Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function cancelOrder() {
+            if (confirm('Are you sure you want to cancel this order?')) {
+                resetForm();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('orderForm').reset();
+            document.getElementById('unitPrice').value = '';
+            document.getElementById('stockSKU').value = '';
+            document.getElementById('depositPercent').value = '';
+            document.getElementById('successMessage').classList.remove('active');
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step2-indicator').classList.remove('active');
+            document.getElementById('step1-indicator').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

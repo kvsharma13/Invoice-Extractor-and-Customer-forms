@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Portal - Cosmetic Vision</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 50%, #1a0b2e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1100px;
+            width: 100%;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .logo h1 {
+            font-size: 56px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #b794f6 0%, #e9d5ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        
+        .logo p {
+            color: #c4b5fd;
+            font-size: 20px;
+            font-weight: 300;
+        }
+        
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .portal-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 50px 40px;
+            border: 2px solid rgba(167, 139, 250, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .portal-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .portal-card:hover {
+            transform: translateY(-12px);
+            border-color: #a78bfa;
+            box-shadow: 0 25px 70px rgba(167, 139, 250, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .portal-card.maintenance {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .portal-card.maintenance:hover {
+            transform: none;
+            border-color: rgba(167, 139, 250, 0.3);
+            box-shadow: none;
+        }
+        
+        .portal-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            text-align: center;
+            filter: drop-shadow(0 4px 8px rgba(167, 139, 250, 0.3));
+        }
+        
+        .portal-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        
+        .portal-description {
+            color: #c4b5fd;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #a78bfa;
+            color: #1a0b2e;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        .badge.maintenance {
+            background: #f59e0b;
+        }
+        
+        .badge.active {
+            background: #10b981;
+        }
+        
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 42px;
+            }
+            
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Cosmetic Vision</h1>
+            <p>Your Vision, Our Mission</p>
+        </div>
+        
+        <div class="portal-grid">
+            <!-- Customer Portal -->
+            <a href="/customer-login" class="portal-card">
+                <div class="portal-icon">👤</div>
+                <div class="portal-title">Customer Portal</div>
+                <div class="portal-description">
+                    Place orders, track shipments, and submit reviews
+                </div>
+                <div style="text-align: center;">
+                    <span class="badge active">Active</span>
+                </div>
+            </a>
+            
+            <!-- Admin Portal -->
+            <a href="/admin-login" class="portal-card">
+                <div class="portal-icon">⚙️</div>
+                <div class="portal-title">Admin Portal</div>
+                <div class="portal-description">
+                    Manage orders, view analytics, and access AI insights
+                </div>
+                <div style="text-align: center;">
+                    <span class="badge active">Active</span>
+                </div>
+            </a>
+            
+            <!-- Supplier Portal -->
+            <div class="portal-card maintenance" onclick="showMaintenance()">
+                <div class="portal-icon">🏭</div>
+                <div class="portal-title">Supplier Portal</div>
+                <div class="portal-description">
+                    View orders, update inventory, and manage shipments
+                </div>
+                <div style="text-align: center;">
+                    <span class="badge maintenance">Under Maintenance</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showMaintenance() {
+            alert('🚧 Supplier Portal is currently under maintenance.\n\nWe\'re working hard to bring you this feature soon!\n\nPlease check back later.');
+        }
+    </script>
+</body>
+</html>
