@@ -145,6 +145,11 @@
             transition: all 0.3s ease;
         }
 
+        .form-group select option {
+            background: #1a0b2e;
+            color: #fff;
+        }
+
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
@@ -228,38 +233,37 @@
 
         .summary-label {
             color: #e9d5ff;
-            font-size: 15px;
+            font-weight: 600;
         }
 
         .summary-value {
             color: #fff;
-            font-weight: 700;
-            font-size: 16px;
+            font-weight: 600;
         }
 
         .summary-total {
-            font-size: 24px !important;
-            color: #a78bfa !important;
+            font-size: 20px;
+            color: #a78bfa;
         }
 
         .payment-section {
             text-align: center;
-            margin-top: 30px;
         }
 
         .paypal-logo {
-            width: 120px;
-            margin-bottom: 24px;
+            max-width: 200px;
+            margin: 20px auto;
+            display: block;
         }
 
         .button-group {
             display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-top: 30px;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .btn {
+            width: 100%;
             padding: 16px 40px;
             border: none;
             border-radius: 12px;
@@ -267,9 +271,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .btn-primary {
@@ -285,23 +286,24 @@
 
         .btn-secondary {
             background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #e9d5ff;
+            border: 2px solid rgba(167, 139, 250, 0.3);
         }
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
+            border-color: #a78bfa;
         }
 
         .btn-cancel {
-            background: transparent;
-            color: #ef4444;
-            border: 2px solid #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 2px solid rgba(239, 68, 68, 0.3);
         }
 
         .btn-cancel:hover {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
         }
 
         .success-message {
@@ -330,11 +332,19 @@
             font-size: 16px;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 24px;
-            }
+        .back-link {
+            display: inline-block;
+            color: #a78bfa;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
 
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
             }
@@ -342,25 +352,19 @@
             .checkbox-group {
                 grid-template-columns: 1fr;
             }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <a href="/customer-login" class="back-link">← Back to Customer Portal</a>
+        
         <div class="logo">
-            <h1>Cosmetic Vision</h1>
-            <p>Customer Order Form</p>
+            <h1>Customer Order Form</h1>
+            <p>Complete your order details</p>
         </div>
 
+        <!-- Step Indicator -->
         <div class="step-indicator">
             <div class="step active" id="step1-indicator">
                 <div class="step-number">1</div>
@@ -375,22 +379,35 @@
         <!-- Step 1: Order Form -->
         <div class="form-section active" id="step1">
             <h2 class="section-title">📋 Order Information</h2>
-
+            
             <form id="orderForm">
                 <div class="form-group">
                     <label for="customerName">Customer Name *</label>
-                    <input type="text" id="customerName" required placeholder="Enter your full name">
+                    <input type="text" id="customerName" required placeholder="Enter your name">
                 </div>
 
                 <div class="form-group">
-                    <label for="productDescription">Product Description *</label>
-                    <select id="productDescription" required required style="color: black;">
+                    <label for="productDescription">Product *</label>
+                    <select id="productDescription" required>
                         <option value="">Select a product</option>
                         <option value="Lipstick - Matte Finish">Lipstick - Matte Finish</option>
                         <option value="Face Cream - Anti-Aging">Face Cream - Anti-Aging</option>
                         <option value="Eye Shadow Palette - 24 Colors">Eye Shadow Palette - 24 Colors</option>
                         <option value="Nail Polish - Quick Dry">Nail Polish - Quick Dry</option>
                         <option value="Foundation - Full Coverage">Foundation - Full Coverage</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="shippingType">Shipping Type *</label>
+                    <select id="shippingType" required>
+                        <option value="">Select shipping type</option>
+                        <option value="Sea LCL">Sea LCL</option>
+                        <option value="Air-Direct">Air-Direct</option>
+                        <option value="Small Parcel">Small Parcel</option>
+                        <option value="Free of Charge">Free of Charge</option>
+                        <option value="China Store">China Store</option>
+                        <option value="Exp Air">Exp Air</option>
                     </select>
                 </div>
 
@@ -464,6 +481,11 @@
                 </div>
 
                 <div class="summary-item">
+                    <span class="summary-label">Shipping Type:</span>
+                    <span class="summary-value" id="summaryShipping">-</span>
+                </div>
+
+                <div class="summary-item">
                     <span class="summary-label">Units:</span>
                     <span class="summary-value" id="summaryUnits">-</span>
                 </div>
@@ -494,10 +516,10 @@
 
                 <div class="button-group">
                     <button type="button" class="btn btn-primary" onclick="payDeposit()">
-                        💳 Pay Deposit (Saves to Airtable)
+                        💳 Pay Deposit & Submit Order
                     </button>
                     <button type="button" class="btn btn-secondary" onclick="submitDemo()" style="background: #10b981; border-color: #10b981;">
-                        🎯 Demo Submit (Test Airtable)
+                        🎯 Demo Submit (Test)
                     </button>
                     <button type="button" class="btn btn-cancel" onclick="cancelOrder()">
                         ✕ Cancel Order
@@ -571,6 +593,7 @@
         function fillDemoData() {
             document.getElementById('customerName').value = 'Demo Customer';
             document.getElementById('productDescription').value = 'Lipstick - Matte Finish';
+            document.getElementById('shippingType').value = 'Sea LCL';
             
             // Trigger product selection to populate fields
             const product = products['Lipstick - Matte Finish'];
@@ -584,17 +607,18 @@
             document.getElementById('updateArtwork').checked = true;
             document.getElementById('toleranceOrder').checked = false;
             
-            alert('Demo data filled! Click "Continue to Payment" to test.');
+            alert('Demo data filled! Click "Continue to Payment" to proceed.');
         }
 
         function goToPayment() {
             // Validate form
             const customerName = document.getElementById('customerName').value;
             const productDescription = document.getElementById('productDescription').value;
+            const shippingType = document.getElementById('shippingType').value;
             const unitsToOrder = document.getElementById('unitsToOrder').value;
 
-            if (!customerName || !productDescription || !unitsToOrder) {
-                alert('Please fill in all required fields (Customer Name, Product, and Units to Order)');
+            if (!customerName || !productDescription || !shippingType || !unitsToOrder) {
+                alert('Please fill in all required fields (Customer Name, Product, Shipping Type, and Units to Order)');
                 return;
             }
 
@@ -606,6 +630,7 @@
 
             // Update summary
             document.getElementById('summaryProduct').textContent = productDescription;
+            document.getElementById('summaryShipping').textContent = shippingType;
             document.getElementById('summaryUnits').textContent = units;
             document.getElementById('summaryUnitPrice').textContent = '$' + product.price.toFixed(2);
             document.getElementById('summaryOrderTotal').textContent = '$' + orderTotal.toFixed(2);
@@ -635,30 +660,17 @@
         }
 
         async function submitDemo() {
-            console.log('=== DEMO SUBMIT - Testing Airtable Integration ===');
+            console.log('=== DEMO SUBMIT - Testing Integration ===');
             await submitOrder();
         }
 
-        // Generate unique Deposit Invoice Number
-        function generateInvoiceNumber() {
-            const date = new Date();
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const random = Math.floor(Math.random() + 10000).toString().padStart(4, '0');
-            return `INV-${year}${month}${day}-${random}`;
-        }
-
         async function submitOrder() {
-            // Generate Deposit Invoice Number
-            const invoiceNumber = generateInvoiceNumber();
-            
             // Collect all form data
             const formData = {
                 createdDate: new Date().toISOString().split('T')[0],
-                depositInvoiceNumber: invoiceNumber,  // NEW: Generated invoice number
                 customerName: document.getElementById('customerName').value,
                 productDescription: document.getElementById('productDescription').value,
+                shippingType: document.getElementById('shippingType').value,
                 unitPrice: document.getElementById('unitPrice').value,
                 stockSKU: document.getElementById('stockSKU').value,
                 depositPercent: document.getElementById('depositPercent').value,
@@ -671,7 +683,7 @@
                 depositAmount: document.getElementById('summaryDepositAmount').textContent
             };
 
-            console.log('📤 Sending to Airtable:', formData);
+            console.log('📤 Sending order data:', formData);
 
             try {
                 // Send to backend
