@@ -137,7 +137,7 @@
 
         .option-cards {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 16px;
         }
 
@@ -236,6 +236,12 @@
                     <div class="option-icon">⭐</div>
                     <div class="option-title">Review Form</div>
                     <div class="option-desc">Submit order review</div>
+                </a>
+
+                <a href="/invoice-extractor" class="option-card">
+                    <div class="option-icon">📄</div>
+                    <div class="option-title">Invoice Extractor</div>
+                    <div class="option-desc">Upload & extract invoice</div>
                 </a>
             </div>
         </div>
