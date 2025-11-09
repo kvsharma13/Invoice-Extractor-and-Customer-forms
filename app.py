@@ -269,12 +269,16 @@ def submit_order():
     try:
         order_data = request.json
         
-        # Updated with Shipping Type field
+        # Get Deposit Invoice Number from frontend (generated in JavaScript)
+        invoice_number = order_data.get('depositInvoiceNumber', f"INV-{datetime.now().strftime('%Y%m%d%H%M%S')}")
+        
+        # Updated with Shipping Type and Deposit Invoice Number fields
         airtable_data = {
             'Created Date': order_data['createdDate'],
+            'Deposit Invoice Number': invoice_number,  # NEW FIELD
             'Customer Name': order_data['customerName'],
             'Product Description': order_data['productDescription'],
-            'Shipping Type': order_data.get('shippingType', ''),  # NEW FIELD
+            'Shipping Type': order_data.get('shippingType', ''),
             'Unit Price': order_data['unitPrice'],
             'Stock SKU Number': order_data['stockSKU'],
             'Deposit %': order_data['depositPercent'],
@@ -289,15 +293,52 @@ def submit_order():
         
         record = save_to_airtable(airtable_data, orders_table_name)
         
-        print(f"Order saved to Airtable! Record ID: {record['id']}")
+        print(f"Order saved to Airtable! Record ID: {record['id']}, Invoice Number: {invoice_number}")
         
         return jsonify({
             'success': True,
             'record_id': record['id'],
+            'invoice_number': invoice_number,  # Return to frontend
             'message': 'Order submitted successfully'
         })
     except Exception as e:
         print(f"Error saving order: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/lookup-invoice', methods=['POST'])
+def lookup_invoice():
+    """Lookup order by Deposit Invoice Number"""
+    try:
+        data = request.json
+        invoice_number = data.get('invoiceNumber', '').strip()
+        
+        if not invoice_number:
+            return jsonify({'success': False, 'error': 'Invoice number is required'}), 400
+        
+        # Search Airtable for matching Deposit Invoice Number
+        table = airtable_api.table(base_id, orders_table_name)
+        
+        # Use formula to search for exact match
+        formula = f"{{Deposit Invoice Number}} = '{invoice_number}'"
+        records = table.all(formula=formula)
+        
+        if not records or len(records) == 0:
+            return jsonify({'success': False, 'error': 'No order found with this invoice number'}), 404
+        
+        # Return the first matching record
+        record = records[0]
+        
+        print(f"Invoice lookup successful! Found record: {record['id']} for invoice: {invoice_number}")
+        
+        return jsonify({
+            'success': True,
+            'recordId': record['id'],
+            'order': record['fields']
+        })
+        
+    except Exception as e:
+        print(f"Error looking up invoice: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/submit-review', methods=['POST'])
@@ -305,7 +346,7 @@ def submit_review():
     """Handle customer review form submission - UPDATE existing Airtable record"""
     try:
         review_data = request.json
-        order_id = review_data.get('orderId')
+        record_id = review_data.get('recordId')
         
         # Updated with new Yes/No fields
         update_data = {
@@ -314,20 +355,18 @@ def submit_review():
             'Quality Rejects on Inspection': review_data['qualityRejects'],
             'Authorised Invoice': review_data['authorisedInvoice'],
             'Expected Payment Date': review_data['expectedPaymentDate'],
-            'On Time and In Full': review_data.get('onTimeInFull', ''),  # NEW FIELD
-            'Short Shipment': review_data.get('shortShipment', ''),      # NEW FIELD
-            'Delivered Late': review_data.get('deliveredLate', '')       # NEW FIELD
+            'On Time and In Full': review_data.get('onTimeInFull', ''),
+            'Short Shipment': review_data.get('shortShipment', ''),
+            'Delivered Late': review_data.get('deliveredLate', '')
         }
         
-        # If orderId is "manual-entry" (no linked order), create new record instead of updating
-        if order_id == 'manual-entry' or not order_id:
-            table = airtable_api.table(base_id, orders_table_name)
-            record = table.create(update_data)
-            print(f"Review submitted as new record! Record ID: {record['id']}")
-        else:
-            table = airtable_api.table(base_id, orders_table_name)
-            record = table.update(order_id, update_data)
-            print(f"Review submitted! Updated Airtable record: {order_id}")
+        # Update the record found by invoice lookup
+        if not record_id:
+            return jsonify({'success': False, 'error': 'Record ID is required'}), 400
+            
+        table = airtable_api.table(base_id, orders_table_name)
+        record = table.update(record_id, update_data)
+        print(f"Review submitted! Updated Airtable record: {record_id}")
         
         return jsonify({
             'success': True,

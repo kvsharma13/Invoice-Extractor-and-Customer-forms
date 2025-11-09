@@ -49,12 +49,93 @@
             font-size: 14px;
         }
 
+        .lookup-section {
+            background: rgba(167, 139, 250, 0.1);
+            border: 2px solid #a78bfa;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .lookup-section h3 {
+            color: #a78bfa;
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .lookup-input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .lookup-input-group input {
+            flex: 1;
+            padding: 14px 16px;
+            border: 2px solid rgba(167, 139, 250, 0.3);
+            border-radius: 12px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .lookup-input-group input:focus {
+            outline: none;
+            border-color: #a78bfa;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1);
+        }
+
+        .lookup-btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .lookup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.4);
+        }
+
+        .lookup-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .lookup-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .lookup-info p {
+            color: #93c5fd;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+
         .order-info {
             background: rgba(167, 139, 250, 0.1);
             border: 2px solid #a78bfa;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 30px;
+            display: none;
+        }
+
+        .order-info.active {
+            display: block;
         }
 
         .order-info h3 {
@@ -255,18 +336,12 @@
             text-decoration: underline;
         }
 
-        .info-box {
-            background: rgba(59, 130, 246, 0.1);
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 24px;
+        #reviewFormSection {
+            display: none;
         }
 
-        .info-box p {
-            color: #93c5fd;
-            font-size: 14px;
-            margin: 4px 0;
+        #reviewFormSection.active {
+            display: block;
         }
     </style>
 </head>
@@ -279,27 +354,56 @@
             <p>Complete your order review</p>
         </div>
 
+        <!-- Step 1: Invoice Number Lookup -->
+        <div class="lookup-section" id="lookupSection">
+            <h3>🔍 Enter Your Deposit Invoice Number</h3>
+            
+            <div class="lookup-input-group">
+                <input 
+                    type="text" 
+                    id="depositInvoiceNumber" 
+                    placeholder="Enter your Deposit Invoice Number"
+                    autocomplete="off"
+                >
+                <button class="lookup-btn" onclick="lookupInvoice()" id="lookupBtn">
+                    Search
+                </button>
+            </div>
+
+            <div class="lookup-info">
+                <p>💡 <strong>How to find your Deposit Invoice Number:</strong></p>
+                <p>• Check your order confirmation email</p>
+                <p>• Look at your invoice/receipt document</p>
+                <p>• Contact support if you need assistance</p>
+            </div>
+
+            <div class="status" id="lookupStatus"></div>
+        </div>
+
+        <!-- Step 2: Order Info (Shows after successful lookup) -->
         <div class="order-info" id="orderInfo">
-            <h3>📦 Your Order</h3>
+            <h3>📦 Your Order Details</h3>
+            <p><strong>Invoice Number:</strong> <span id="displayInvoiceNumber">-</span></p>
             <p><strong>Customer:</strong> <span id="displayCustomerName">-</span></p>
             <p><strong>Product:</strong> <span id="displayProduct">-</span></p>
-            <p><strong>Order ID:</strong> <span id="displayOrderId">-</span></p>
             
             <div class="payment-highlight">
+                <p style="color: #d1fae5; margin-bottom: 4px; font-size: 13px;">Deposit Paid:</p>
+                <div style="color: #10b981; font-size: 18px; font-weight: 600; margin-bottom: 12px;" id="displayDepositPaid">$0.00</div>
+                
                 <p style="color: #d1fae5; margin-bottom: 8px;">Final Amount to be Paid:</p>
                 <div class="amount" id="finalAmount">$0.00</div>
                 <p style="color: #d1fae5; font-size: 12px; margin-top: 6px;">(Order Total - Deposit Paid)</p>
             </div>
         </div>
 
-        <div class="info-box">
-            <p>💡 <strong>Note:</strong> If you don't have order information, you can still fill this form manually.</p>
-        </div>
-
-        <div id="reviewForm">
+        <!-- Step 3: Review Form (Shows after successful lookup) -->
+        <div id="reviewFormSection">
             <h2 class="section-title">📋 Review & Receipt Information</h2>
 
             <form id="reviewFormElement">
+                <input type="hidden" id="recordId" value="">
+                
                 <div class="form-group">
                     <label for="actualUnitsReceived">Actual Units Received *</label>
                     <input type="number" id="actualUnitsReceived" required min="0" placeholder="Enter units received">
@@ -356,7 +460,7 @@
                     </select>
                 </div>
 
-                <div class="status" id="status"></div>
+                <div class="status" id="submitStatus"></div>
 
                 <button type="submit" class="btn btn-primary" id="submitBtn">
                     Submit Review →
@@ -377,43 +481,98 @@
     </div>
 
     <script>
-        // Get order info from session storage
-        const orderId = sessionStorage.getItem('orderId');
-        const customerName = sessionStorage.getItem('customerName');
-        const productDescription = sessionStorage.getItem('productDescription');
-        const orderTotal = sessionStorage.getItem('orderTotal');
-        const depositAmount = sessionStorage.getItem('depositAmount');
+        let orderData = null;
 
-        // Calculate final amount to be paid
-        function calculateFinalAmount() {
-            if (orderTotal && depositAmount) {
-                const total = parseFloat(orderTotal.replace('$', ''));
-                const deposit = parseFloat(depositAmount.replace('$', ''));
-                const finalAmount = total - deposit;
-                return '$' + finalAmount.toFixed(2);
+        // Function to lookup invoice in Airtable
+        async function lookupInvoice() {
+            const invoiceNumber = document.getElementById('depositInvoiceNumber').value.trim();
+            const statusDiv = document.getElementById('lookupStatus');
+            const lookupBtn = document.getElementById('lookupBtn');
+
+            if (!invoiceNumber) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '⚠️ Please enter a Deposit Invoice Number';
+                return;
             }
-            return '$0.00';
+
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = '🔍 Searching for your order...';
+            lookupBtn.disabled = true;
+
+            try {
+                const response = await fetch('/lookup-invoice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ invoiceNumber: invoiceNumber })
+                });
+
+                // Check if response is OK
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success && result.order) {
+                    orderData = result.order;
+                    
+                    // Show success
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Order found! Loading details...';
+
+                    // Populate order information
+                    document.getElementById('displayInvoiceNumber').textContent = invoiceNumber;
+                    document.getElementById('displayCustomerName').textContent = orderData['Customer Name'] || '-';
+                    document.getElementById('displayProduct').textContent = orderData['Product Description'] || '-';
+                    
+                    // Calculate and display amounts
+                    const orderTotal = parseFloat((orderData['Order Total'] || '0').replace(/[$,]/g, '')) || 0;
+                    const depositPaid = parseFloat((orderData['Deposit Amount'] || '0').replace(/[$,]/g, '')) || 0;
+                    const finalAmount = orderTotal - depositPaid;
+
+                    document.getElementById('displayDepositPaid').textContent = '$' + depositPaid.toFixed(2);
+                    document.getElementById('finalAmount').textContent = '$' + finalAmount.toFixed(2);
+
+                    // Store record ID
+                    document.getElementById('recordId').value = result.recordId;
+
+                    // Show order info and form
+                    document.getElementById('orderInfo').classList.add('active');
+                    document.getElementById('reviewFormSection').classList.add('active');
+                    
+                    // Hide lookup section
+                    setTimeout(() => {
+                        document.getElementById('lookupSection').style.display = 'none';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 1500);
+
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '❌ ' + (result.error || 'Invoice number not found. Please check and try again.');
+                    lookupBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Lookup error:', error);
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Connection error. Please check your internet and try again.';
+                lookupBtn.disabled = false;
+            }
         }
 
-        // Display order info
-        if (orderId && customerName && productDescription) {
-            document.getElementById('displayCustomerName').textContent = customerName;
-            document.getElementById('displayProduct').textContent = productDescription;
-            document.getElementById('displayOrderId').textContent = orderId.substring(0, 8) + '...';
-            document.getElementById('finalAmount').textContent = calculateFinalAmount();
-        } else {
-            // No order info available - show message but allow form submission
-            document.getElementById('orderInfo').innerHTML = `
-                <h3>ℹ️ No Order Information</h3>
-                <p>You can still submit a review manually. Order details will be empty.</p>
-            `;
-        }
+        // Allow Enter key to trigger lookup
+        document.getElementById('depositInvoiceNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                lookupInvoice();
+            }
+        });
 
         // Handle form submission
         document.getElementById('reviewFormElement').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const statusDiv = document.getElementById('status');
+            const statusDiv = document.getElementById('submitStatus');
             const submitBtn = document.getElementById('submitBtn');
 
             statusDiv.className = 'status loading';
@@ -421,7 +580,8 @@
             submitBtn.disabled = true;
 
             const reviewData = {
-                orderId: orderId || 'manual-entry',
+                recordId: document.getElementById('recordId').value,
+                depositInvoiceNumber: document.getElementById('depositInvoiceNumber').value,
                 actualUnitsReceived: parseInt(document.getElementById('actualUnitsReceived').value),
                 dateGoodsReceived: document.getElementById('dateGoodsReceived').value,
                 qualityRejects: parseInt(document.getElementById('qualityRejects').value),
@@ -443,6 +603,11 @@
                     body: JSON.stringify(reviewData)
                 });
 
+                // Check if response is OK
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
                 const result = await response.json();
                 console.log('📥 Response:', result);
 
@@ -450,27 +615,20 @@
                     statusDiv.className = 'status success';
                     statusDiv.textContent = '✅ Review submitted successfully!';
                     
-                    // Clear session storage
-                    sessionStorage.removeItem('orderId');
-                    sessionStorage.removeItem('customerName');
-                    sessionStorage.removeItem('productDescription');
-                    sessionStorage.removeItem('orderTotal');
-                    sessionStorage.removeItem('depositAmount');
-
                     // Show success message
-                    document.getElementById('reviewForm').style.display = 'none';
+                    document.getElementById('reviewFormSection').style.display = 'none';
                     document.getElementById('orderInfo').style.display = 'none';
                     document.getElementById('successMessage').classList.add('active');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
                     statusDiv.className = 'status error';
-                    statusDiv.textContent = '❌ Error: ' + result.error;
+                    statusDiv.textContent = '❌ Error: ' + (result.error || 'Failed to submit review');
                     submitBtn.disabled = false;
                 }
             } catch (error) {
                 console.error('❌ Error:', error);
                 statusDiv.className = 'status error';
-                statusDiv.textContent = '❌ Error: ' + error.message;
+                statusDiv.textContent = '❌ Connection error. Please check your internet and try again.';
                 submitBtn.disabled = false;
             }
         });
