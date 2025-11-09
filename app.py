@@ -269,10 +269,12 @@ def submit_order():
     try:
         order_data = request.json
         
+        # Updated with Shipping Type field
         airtable_data = {
             'Created Date': order_data['createdDate'],
             'Customer Name': order_data['customerName'],
             'Product Description': order_data['productDescription'],
+            'Shipping Type': order_data.get('shippingType', ''),  # NEW FIELD
             'Unit Price': order_data['unitPrice'],
             'Stock SKU Number': order_data['stockSKU'],
             'Deposit %': order_data['depositPercent'],
@@ -303,20 +305,29 @@ def submit_review():
     """Handle customer review form submission - UPDATE existing Airtable record"""
     try:
         review_data = request.json
-        order_id = review_data['orderId']
+        order_id = review_data.get('orderId')
         
+        # Updated with new Yes/No fields
         update_data = {
             'Actual Units Received': review_data['actualUnitsReceived'],
             'Date Goods Received Warehouse': review_data['dateGoodsReceived'],
             'Quality Rejects on Inspection': review_data['qualityRejects'],
             'Authorised Invoice': review_data['authorisedInvoice'],
-            'Expected Payment Date': review_data['expectedPaymentDate']
+            'Expected Payment Date': review_data['expectedPaymentDate'],
+            'On Time and In Full': review_data.get('onTimeInFull', ''),  # NEW FIELD
+            'Short Shipment': review_data.get('shortShipment', ''),      # NEW FIELD
+            'Delivered Late': review_data.get('deliveredLate', '')       # NEW FIELD
         }
         
-        table = airtable_api.table(base_id, orders_table_name)
-        record = table.update(order_id, update_data)
-        
-        print(f"Review submitted! Updated Airtable record: {order_id}")
+        # If orderId is "manual-entry" (no linked order), create new record instead of updating
+        if order_id == 'manual-entry' or not order_id:
+            table = airtable_api.table(base_id, orders_table_name)
+            record = table.create(update_data)
+            print(f"Review submitted as new record! Record ID: {record['id']}")
+        else:
+            table = airtable_api.table(base_id, orders_table_name)
+            record = table.update(order_id, update_data)
+            print(f"Review submitted! Updated Airtable record: {order_id}")
         
         return jsonify({
             'success': True,

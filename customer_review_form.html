@@ -69,6 +69,20 @@
             font-size: 14px;
         }
 
+        .payment-highlight {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .payment-highlight .amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
         .section-title {
             font-size: 24px;
             font-weight: 700;
@@ -91,7 +105,8 @@
         }
 
         .form-group input[type="number"],
-        .form-group input[type="date"] {
+        .form-group input[type="date"],
+        .form-group select {
             width: 100%;
             padding: 14px 16px;
             border: 2px solid rgba(167, 139, 250, 0.3);
@@ -102,7 +117,13 @@
             transition: all 0.3s ease;
         }
 
-        .form-group input:focus {
+        .form-group select option {
+            background: #1a0b2e;
+            color: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #a78bfa;
             background: rgba(255, 255, 255, 0.08);
@@ -233,11 +254,25 @@
         .back-link:hover {
             text-decoration: underline;
         }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-box p {
+            color: #93c5fd;
+            font-size: 14px;
+            margin: 4px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="/" class="back-link">← Back to Home</a>
+        <a href="/customer-login" class="back-link">← Back to Customer Portal</a>
         
         <div class="logo">
             <h1>Customer Review Form</h1>
@@ -249,6 +284,16 @@
             <p><strong>Customer:</strong> <span id="displayCustomerName">-</span></p>
             <p><strong>Product:</strong> <span id="displayProduct">-</span></p>
             <p><strong>Order ID:</strong> <span id="displayOrderId">-</span></p>
+            
+            <div class="payment-highlight">
+                <p style="color: #d1fae5; margin-bottom: 8px;">Final Amount to be Paid:</p>
+                <div class="amount" id="finalAmount">$0.00</div>
+                <p style="color: #d1fae5; font-size: 12px; margin-top: 6px;">(Order Total - Deposit Paid)</p>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p>💡 <strong>Note:</strong> If you don't have order information, you can still fill this form manually.</p>
         </div>
 
         <div id="reviewForm">
@@ -261,7 +306,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="dateGoodsReceived">Date Goods Received @ Warehouse *</label>
+                    <label for="dateGoodsReceived">Date Goods Received Warehouse *</label>
                     <input type="date" id="dateGoodsReceived" required>
                 </div>
 
@@ -273,13 +318,42 @@
                 <div class="form-group">
                     <div class="checkbox-item">
                         <input type="checkbox" id="authorisedInvoice">
-                        <label for="authorisedInvoice">Authorised Invoice?</label>
+                        <label for="authorisedInvoice">Authorised Invoice</label>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="expectedPaymentDate">Expected Payment Date *</label>
                     <input type="date" id="expectedPaymentDate" required>
+                </div>
+
+                <h3 style="color: #e9d5ff; margin: 32px 0 16px 0; font-size: 18px;">Delivery Assessment</h3>
+
+                <div class="form-group">
+                    <label for="onTimeInFull">On Time and In Full *</label>
+                    <select id="onTimeInFull" required>
+                        <option value="">Select an option</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="shortShipment">Short Shipment *</label>
+                    <select id="shortShipment" required>
+                        <option value="">Select an option</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="deliveredLate">Delivered Late *</label>
+                    <select id="deliveredLate" required>
+                        <option value="">Select an option</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
                 </div>
 
                 <div class="status" id="status"></div>
@@ -296,8 +370,8 @@
             <h2>Review Submitted Successfully!</h2>
             <p>Your review has been saved and the order has been updated.</p>
             <p style="margin-top: 12px;">Thank you for your feedback!</p>
-            <button type="button" class="btn btn-primary" onclick="window.location.href='/'" style="margin-top: 30px;">
-                Back to Home
+            <button type="button" class="btn btn-primary" onclick="window.location.href='/customer-login'" style="margin-top: 30px;">
+                Back to Customer Portal
             </button>
         </div>
     </div>
@@ -307,29 +381,37 @@
         const orderId = sessionStorage.getItem('orderId');
         const customerName = sessionStorage.getItem('customerName');
         const productDescription = sessionStorage.getItem('productDescription');
+        const orderTotal = sessionStorage.getItem('orderTotal');
+        const depositAmount = sessionStorage.getItem('depositAmount');
+
+        // Calculate final amount to be paid
+        function calculateFinalAmount() {
+            if (orderTotal && depositAmount) {
+                const total = parseFloat(orderTotal.replace('$', ''));
+                const deposit = parseFloat(depositAmount.replace('$', ''));
+                const finalAmount = total - deposit;
+                return '$' + finalAmount.toFixed(2);
+            }
+            return '$0.00';
+        }
 
         // Display order info
         if (orderId && customerName && productDescription) {
             document.getElementById('displayCustomerName').textContent = customerName;
             document.getElementById('displayProduct').textContent = productDescription;
             document.getElementById('displayOrderId').textContent = orderId.substring(0, 8) + '...';
+            document.getElementById('finalAmount').textContent = calculateFinalAmount();
         } else {
-            // No order info available
+            // No order info available - show message but allow form submission
             document.getElementById('orderInfo').innerHTML = `
-                <h3>⚠️ No Order Information</h3>
-                <p>Please complete an order first before filling the review form.</p>
+                <h3>ℹ️ No Order Information</h3>
+                <p>You can still submit a review manually. Order details will be empty.</p>
             `;
-            document.getElementById('reviewFormElement').style.display = 'none';
         }
 
         // Handle form submission
         document.getElementById('reviewFormElement').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            if (!orderId) {
-                alert('No order ID found. Please complete an order first.');
-                return;
-            }
 
             const statusDiv = document.getElementById('status');
             const submitBtn = document.getElementById('submitBtn');
@@ -339,12 +421,15 @@
             submitBtn.disabled = true;
 
             const reviewData = {
-                orderId: orderId,
+                orderId: orderId || 'manual-entry',
                 actualUnitsReceived: parseInt(document.getElementById('actualUnitsReceived').value),
                 dateGoodsReceived: document.getElementById('dateGoodsReceived').value,
                 qualityRejects: parseInt(document.getElementById('qualityRejects').value),
                 authorisedInvoice: document.getElementById('authorisedInvoice').checked,
-                expectedPaymentDate: document.getElementById('expectedPaymentDate').value
+                expectedPaymentDate: document.getElementById('expectedPaymentDate').value,
+                onTimeInFull: document.getElementById('onTimeInFull').value,
+                shortShipment: document.getElementById('shortShipment').value,
+                deliveredLate: document.getElementById('deliveredLate').value
             };
 
             console.log('📤 Submitting review:', reviewData);
@@ -369,6 +454,8 @@
                     sessionStorage.removeItem('orderId');
                     sessionStorage.removeItem('customerName');
                     sessionStorage.removeItem('productDescription');
+                    sessionStorage.removeItem('orderTotal');
+                    sessionStorage.removeItem('depositAmount');
 
                     // Show success message
                     document.getElementById('reviewForm').style.display = 'none';

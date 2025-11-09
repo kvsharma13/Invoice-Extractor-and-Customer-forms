@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Login - Cosmetic Vision</title>
+    <title>Customer Portal - Cosmetic Vision</title>
     <style>
         * {
             margin: 0;
@@ -26,7 +26,7 @@
             backdrop-filter: blur(10px);
             border-radius: 24px;
             padding: 50px;
-            max-width: 450px;
+            max-width: 550px;
             width: 100%;
             border: 2px solid rgba(167, 139, 250, 0.3);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
@@ -123,25 +123,59 @@
             font-size: 14px;
         }
 
-        .guest-access {
+        .options-section {
+            margin-top: 30px;
+        }
+
+        .options-title {
             text-align: center;
-        }
-
-        .guest-btn {
-            display: inline-block;
-            padding: 12px 24px;
-            border: 2px solid rgba(167, 139, 250, 0.5);
-            border-radius: 12px;
-            color: #a78bfa;
-            text-decoration: none;
+            color: #e9d5ff;
+            font-size: 16px;
             font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            margin-bottom: 20px;
         }
 
-        .guest-btn:hover {
+        .option-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(167, 139, 250, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .option-card:hover {
             background: rgba(167, 139, 250, 0.1);
             border-color: #a78bfa;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.3);
+        }
+
+        .option-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .option-title {
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .option-desc {
+            color: #c4b5fd;
+            font-size: 13px;
+            line-height: 1.4;
         }
 
         .error-message {
@@ -153,6 +187,12 @@
             font-size: 14px;
             display: none;
         }
+
+        @media (max-width: 600px) {
+            .option-cards {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -161,7 +201,7 @@
         
         <div class="logo">
             <div class="logo-icon">👤</div>
-            <h2>Customer Login</h2>
+            <h2>Customer Portal</h2>
             <p>Access your orders and reviews</p>
         </div>
 
@@ -183,8 +223,21 @@
 
         <div class="divider">OR</div>
 
-        <div class="guest-access">
-            <a href="/customer-order" class="guest-btn">Continue as Guest →</a>
+        <div class="options-section">
+            <div class="options-title">Continue as Guest</div>
+            <div class="option-cards">
+                <a href="/customer-order" class="option-card">
+                    <div class="option-icon">📝</div>
+                    <div class="option-title">Order Form</div>
+                    <div class="option-desc">Place a new order</div>
+                </a>
+
+                <a href="/customer-review" class="option-card">
+                    <div class="option-icon">⭐</div>
+                    <div class="option-title">Review Form</div>
+                    <div class="option-desc">Submit order review</div>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -195,13 +248,12 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // For now, allow any login (you can add real authentication later)
             // Store customer info in session
             sessionStorage.setItem('customerEmail', email);
             sessionStorage.setItem('isLoggedIn', 'true');
             
-            // Redirect to customer order page
-            window.location.href = '/customer-order';
+            // Show options after login
+            alert('Login successful! Please select Order Form or Review Form.');
         }
     </script>
 </body>
